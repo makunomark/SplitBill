@@ -11,7 +11,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
+import android.widget.TextView;
 
 import com.example.splitbill.sqlite.Constants;
 import com.example.splitbill.sqlite.ContactHistory;
@@ -21,12 +21,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-/**
- * Created by mark on 4/23/15.
- */
 public class History extends Fragment{
     RecyclerView recyclerView;
     ContactHistory contactHistory;
+    TextView emptyView;
     List<Contact> contactlist = new ArrayList<>();
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
@@ -40,11 +38,13 @@ public class History extends Fragment{
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        recyclerView = (RecyclerView)getView().findViewById(R.id.recycler_view_history);
+        emptyView = (TextView) view.findViewById(R.id.empty_view_2);
+        recyclerView = (RecyclerView) view.findViewById(R.id.recycler_view_history);
         mLayoutManager = new LinearLayoutManager(getActivity());
         recyclerView.setLayoutManager(mLayoutManager);
         contactHistory = new ContactHistory(getActivity());
         new LoadItems().execute();
+
 
     }
 
@@ -81,6 +81,16 @@ public class History extends Fragment{
         protected void onPostExecute(Object o) {
             super.onPostExecute(o);
             setAdapter();
+
+            if (contactlist.isEmpty()) {
+                recyclerView.setVisibility(View.GONE);
+                emptyView.setVisibility(View.VISIBLE);
+                emptyView.setText("Seems like you haven't split bills yet");
+            } else {
+                recyclerView.setVisibility(View.VISIBLE);
+                emptyView.setVisibility(View.GONE);
+            }
+
             p_dialog.dismiss();
         }
 

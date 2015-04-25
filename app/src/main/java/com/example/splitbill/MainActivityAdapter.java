@@ -2,11 +2,8 @@ package com.example.splitbill;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.os.AsyncTask;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -17,41 +14,32 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.splitbill.sqlite.ContactHistory;
+import com.example.splitbill.sqlite.Debt;
 
+import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Created by mark on 4/25/15.
- */
 public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapter.ViewHolder>{
     // Declare Variables
 
     public List<Contact> contact_list = null;
+    Globals globals;
+    Activity activity;
+    Debt debt = null;
     private Context context;
-    public MainActivityAdapter(List<Contact> contact_list, Context context) {
+    private List<Debt> debtors = new ArrayList<>();
+
+    public MainActivityAdapter(List<Contact> contact_list, Context context, Activity activity) {
         this.contact_list = contact_list;
         this.context = context;
-    }
-
-    public class ViewHolder extends RecyclerView.ViewHolder{
-        protected TextView name;
-        protected TextView amount;
-        protected Button payfor;
-        public ViewHolder(View v){
-            super(v);
-            this.name = (TextView)v.findViewById(R.id.textView_name);
-            this.amount = (TextView)v.findViewById(R.id.textView_amount);
-            this.payfor = (Button)v.findViewById(R.id.button_pay_for);
-        }
+        this.activity = activity;
+        globals = (Globals) activity.getApplication();
     }
 
     @Override
     public ViewHolder onCreateViewHolder(ViewGroup parent,int viewType) {
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.main_activity_list_item, null);
-        ViewHolder holder = new ViewHolder(v);
-
-        return holder;
+        return new ViewHolder(v);
     }
 
     @Override
@@ -60,9 +48,13 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
         // - replace the contents of the view with that element
         holder.name.setText(contact_list.get(position).getF_name());
         holder.amount.setText(String.valueOf(contact_list.get(position).getAmount()));
+        if (contact_list.size() < 2) {
+            holder.amount.setEnabled(false);
+        }
         holder.payfor.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                debt = new Debt();
                 final int item_id = (int)getItemId(position);
                 final AlertDialog.Builder alertDialog = new AlertDialog.Builder(context);
                 //AlertDialog alertDialog = new AlertDialog.Builder(context).create();
@@ -74,7 +66,7 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
                     }
                 });
                 alertDialog.setTitle("Select One Name");
-                final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<String>(
+                final ArrayAdapter<String> arrayAdapter = new ArrayAdapter<>(
                         context,
                         android.R.layout.select_dialog_singlechoice);
                 for(int x = 0; x<contact_list.size();x++){
@@ -96,18 +88,28 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
                                     final EditText editText = (EditText) promptView.findViewById(R.id.amount);
                                     // setup a dialog window
                                     alertDialogBuilder.setCancelable(true)
-                                            .setPositiveButton("Login", new DialogInterface.OnClickListener() {
+                                            .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                                 public void onClick(DialogInterface dialog, int id) {
                                                     int amount = Integer.parseInt(editText.getText().toString().trim());
-                                                    Toast.makeText(context, contact_list.get(item_id).getF_name()+" shall pay "+amount+" for "+ arrayAdapter.getItem(which), Toast.LENGTH_LONG).show();
-                                                    int old_paying_amount = contact_list.get(item_id).getAmount();
-                                                    contact_list.get(item_id).setAmount(old_paying_amount + amount);
 
                                                     for(int m = 0; m < contact_list.size(); m++){
                                                         if(contact_list.get(m).getF_name().equals(arrayAdapter.getItem(which))){
-                                                            contact_list.get(m).setAmount(contact_list.get(m).getAmount() - amount);
+                                                            int new_amount = contact_list.get(m).getAmount() - amount;
+                                                            if (new_amount < 0) {
+                                                                Toast.makeText(context, "Stated value is more than " + arrayAdapter.getItem(which) + "'s value", Toast.LENGTH_LONG).show();
+                                                            } else {
+                                                                Toast.makeText(context, contact_list.get(item_id).getF_name() + " shall pay " + amount + " for " + arrayAdapter.getItem(which), Toast.LENGTH_LONG).show();
+                                                                int old_paying_amount = contact_list.get(item_id).getAmount();
+                                                                contact_list.get(item_id).setAmount(old_paying_amount + amount);
+                                                                contact_list.get(m).setAmount(new_amount);
+                                                                debt.setDebtor_no(contact_list.get(m).getPhone_number());
+                                                            }
                                                         }
                                                     }
+                                                    debt.setAmount(String.valueOf(amount));
+                                                    debt.setLender_no(contact_list.get(item_id).getPhone_number());
+                                                    debtors.add(debt);
+                                                    globals.setDebtors(debtors);
                                                     updateResults(contact_list);
                                                 }
                                             });
@@ -119,6 +121,7 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
             }
         });
     }
+
     @Override
     public long getItemId(int position) {
         return position;
@@ -126,11 +129,25 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
 
     public void updateResults(List<Contact> results) {
         this.contact_list = results;
+        globals.setContact_list(contact_list);
         notifyDataSetChanged();
     }
 
     @Override
     public int getItemCount() {
         return contact_list.size();
+    }
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
+        protected TextView name;
+        protected TextView amount;
+        protected Button payfor;
+
+        public ViewHolder(View v) {
+            super(v);
+            this.name = (TextView) v.findViewById(R.id.textView_name);
+            this.amount = (TextView) v.findViewById(R.id.textView_amount);
+            this.payfor = (Button) v.findViewById(R.id.button_pay_for);
+        }
     }
 }

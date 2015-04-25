@@ -2,9 +2,18 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#c0c0c0">
+    android:background="#c0c0c0"
+    android:orientation="vertical">
     <android.support.v7.widget.RecyclerView
-        android:layout_height = "match_parent"
+        android:id="@+id/recycler_view_history"
         android:layout_width = "match_parent"
-        android:id="@+id/recycler_view_history"/>
+        android:layout_height="match_parent" />
+
+    <TextView
+        android:id="@+id/empty_view_2"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:gravity="center"
+        android:text="no_data"
+        android:visibility="gone" />
 </LinearLayout>

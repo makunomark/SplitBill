@@ -4,7 +4,8 @@
     <eat-comment/>
     <array name="drawer_items">
         <item>Split Cost</item>
-        <item>History</item></array>
+        <item>History</item>
+        <item>Debts</item></array>
     <!-- From: file:/home/mark/StudioProjects/SplitBill/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.1.0/res/values/values.xml -->
     <eat-comment/>
     <attr format="reference" name="drawerArrowStyle"/>

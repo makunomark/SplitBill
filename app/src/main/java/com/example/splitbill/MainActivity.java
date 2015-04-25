@@ -1,6 +1,5 @@
 package com.example.splitbill;
 
-import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
@@ -22,9 +21,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.splitbill.sqlite.ContactHistory;
+import com.example.splitbill.sqlite.Debt;
+import com.example.splitbill.sqlite.Debts;
 
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 
@@ -36,18 +36,20 @@ public class MainActivity extends Fragment{
 	
 	final int REQUEST_CODE = 100;
 	final int AMOUNT_REQUEST_CODE = 1;
-
-	CardView card2;
-	RecyclerView recyclerView;
+	protected List<Contact> contact_list = new ArrayList<>();
+	ContactHistory contactHistory;
+	TextView amount_tv = null, number_friends_tv = null;
+	int amount;
+	Globals globals = null;
+	TextView emptyView;
+	Debts debts;
+	private CardView card2;
+	private RecyclerView recyclerView;
 	private RecyclerView.Adapter mAdapter;
 	private RecyclerView.LayoutManager mLayoutManager;
-	Button btnPickContact = null, editAmount = null, split = null;
-	int divided_amount;
-	protected List<Contact> contact_list = new ArrayList<Contact>();
+	private Button btnPickContact = null, editAmount = null, split = null;
 	private ProgressDialog p_dialog;
-	ContactHistory contactHistory;
-	TextView amount_tv = null, number_friends_tv=null;
-	int amount;
+	private List<Debt> debtors = new ArrayList<>();
 
 	@Nullable
 	@Override
@@ -61,11 +63,12 @@ public class MainActivity extends Fragment{
 	public void onViewCreated(View view, Bundle savedInstanceState) {
 		super.onViewCreated(view, savedInstanceState);
 		contactHistory = new ContactHistory(getActivity());
-
-		amount_tv = (TextView)getView().findViewById(R.id._display_amount);
+		debts = new Debts(getActivity());
+		amount_tv = (TextView) view.findViewById(R.id._display_amount);
 		amount_tv.setText("0");
 		number_friends_tv= (TextView)getView().findViewById(R.id.textView_number_friends);
 		number_friends_tv.setText("0");
+		emptyView = (TextView) view.findViewById(R.id.empty_view_1);
 		card2 = (CardView)getView().findViewById(R.id.card2);
 		btnPickContact = (Button) getView().findViewById(R.id.btnPick);
 		split = (Button)getView().findViewById(R.id.button_split_bill);
@@ -80,7 +83,7 @@ public class MainActivity extends Fragment{
 				startActivityForResult(m, AMOUNT_REQUEST_CODE);
 			}
 		});
-
+		globals = (Globals) getActivity().getApplication();
 		setUi();
 		split.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -94,12 +97,20 @@ public class MainActivity extends Fragment{
 				}
 			}
 		});
+		if (contact_list.isEmpty()) {
+			recyclerView.setVisibility(View.GONE);
+			emptyView.setVisibility(View.VISIBLE);
+			emptyView.setText("Select friends and add a bill");
+		} else {
+			recyclerView.setVisibility(View.VISIBLE);
+			emptyView.setVisibility(View.GONE);
+		}
 	}
 
 	protected  void splitBill(){
-		AlertDialog alertDialog = new AlertDialog.Builder(getActivity()).create();
+		AlertDialog.Builder alertDialog = new AlertDialog.Builder(getActivity());
 		alertDialog.setMessage("Confirm to sending texts");
-		alertDialog.setButton("Send Text", new DialogInterface.OnClickListener() {
+		alertDialog.setPositiveButton("Send Text", new DialogInterface.OnClickListener() {
 			@Override
 			public void onClick(DialogInterface dialog, int which) {
 				new SendMessage().execute();
@@ -130,24 +141,33 @@ public class MainActivity extends Fragment{
 		if(contact_list.size()>0){
 			contact_list.clear();
 		}
-		ArrayList<ContactData> contacts = new ArrayList<>();
-		divided_amount = amount/(contact_list.size()+1);
+		ArrayList<ContactData> contacts;
+		Contact contact;
 		if(requestCode == REQUEST_CODE) {
 			if(resultCode == Activity.RESULT_OK) {
 				if(data.hasExtra(ContactData.CONTACTS_DATA)) {
 					contacts = data.getParcelableArrayListExtra(ContactData.CONTACTS_DATA);
-					divided_amount = amount/(contact_list.size()+1);
 					if(contacts != null) {
-						Iterator<ContactData> iterContacts = contacts.iterator();
-						while(iterContacts.hasNext()) {
-							ContactData contactData = iterContacts.next();
-							Contact contact = new Contact();
+						contact = new Contact();
+						contact.setF_name("Me");
+						contact.setL_name("");
+						contact.setPhone_number("");
+						if (Integer.valueOf(amount_tv.getText().toString()) % (contacts.size() + 1) != 0) {
+							contact.setAmount((Integer.valueOf(amount_tv.getText().toString()) / (contacts.size() + 1)) + (Integer.valueOf(amount_tv.getText().toString()) % (contacts.size() + 1)));
+						} else {
+							contact.setAmount(Integer.valueOf(amount_tv.getText().toString()) / (contacts.size() + 1));
+						}
+						contact_list.add(contact);
+						for (ContactData contactData : contacts) {
+							contact = new Contact();
 							contact.setF_name(contactData.firstname);
 							contact.setL_name(contactData.lastname);
 							contact.setPhone_number(contactData.phoneNmb);
-							contact.setAmount(divided_amount);
+							contact.setAmount(Integer.valueOf(amount_tv.getText().toString()) / (contacts.size() + 1));
 							contact_list.add(contact);
 						}
+
+						globals.setContact_list(contact_list);
 						number_friends_tv.setText(String.valueOf(contact_list.size()));
 					}
 				}
@@ -161,8 +181,17 @@ public class MainActivity extends Fragment{
 			}
 		}
 		if(amount != 0 && contact_list.size() != 0 ){
-			mAdapter = new MainActivityAdapter(contact_list, getActivity());
+			mAdapter = new MainActivityAdapter(contact_list, getActivity(), getActivity());
 			recyclerView.setAdapter(mAdapter);
+
+			if (contact_list.isEmpty()) {
+				recyclerView.setVisibility(View.GONE);
+				emptyView.setVisibility(View.VISIBLE);
+				emptyView.setText("Select friends and add a bill");
+			} else {
+				recyclerView.setVisibility(View.VISIBLE);
+				emptyView.setVisibility(View.GONE);
+			}
 		}
 		super.onActivityResult(requestCode, resultCode, data);
 	}
@@ -179,22 +208,26 @@ public class MainActivity extends Fragment{
 
 		@Override
 		protected void onPostExecute(Object o) {
-			super.onPostExecute(o);
 			p_dialog.dismiss();
 		}
 
 		@Override
 		protected Object doInBackground(Object[] params) {
-			for(int x = 0; x < contact_list.size(); x++){
-				String message = contact_list.get(x).getF_name()+", you'll pay Ksh."+ contact_list.get(x).getAmount();
+			contact_list = globals.getContact_list();
+			debtors = globals.getDebtors();
+			for (Contact contact : contact_list) {
+				String message = contact.getF_name() + ", you'll pay Ksh." + contact.getAmount();
 				try {
 					SmsManager smsManager = SmsManager.getDefault();
-					smsManager.sendTextMessage(contact_list.get(x).getPhone_number(), null, message, null, null);
-
-					contactHistory.add(contact_list.get(x).getF_name(), "" + contact_list.get(x).getAmount());
+					//smsManager.sendTextMessage(contact.getPhone_number(), null, message, null, null);
+					contactHistory.add(contact.getF_name(), "" + contact.getAmount());
 				} catch (Exception e) {
 					e.printStackTrace();
 				}
+			}
+
+			for (Debt debt : debtors) {
+				debts.add(debt.getDebtor_no(), debt.getLender_no(), Integer.valueOf(debt.getAmount()));
 			}
 			return null;
 		}

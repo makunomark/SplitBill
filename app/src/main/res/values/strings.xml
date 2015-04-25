@@ -6,5 +6,7 @@
     <string name="check_all_none">Check all/none</string>
     <array name="drawer_items">
         <item>Split Cost</item>
-        <item>History</item></array>
+        <item>History</item>
+        <item>Debts</item>
+    </array>
 </resources>
