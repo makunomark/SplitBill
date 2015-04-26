@@ -90,27 +90,34 @@ public class MainActivityAdapter extends RecyclerView.Adapter<MainActivityAdapte
                                     alertDialogBuilder.setCancelable(true)
                                             .setPositiveButton("OK", new DialogInterface.OnClickListener() {
                                                 public void onClick(DialogInterface dialog, int id) {
-                                                    int amount = Integer.parseInt(editText.getText().toString().trim());
+                                                    int amount = 0;
+                                                    if (!editText.getText().toString().trim().equals("")) {
+                                                        amount = Integer.parseInt(editText.getText().toString().trim());
+                                                    } else {
+                                                        Toast.makeText(context, "Input must be present", Toast.LENGTH_LONG).show();
+                                                    }
 
-                                                    for(int m = 0; m < contact_list.size(); m++){
-                                                        if(contact_list.get(m).getF_name().equals(arrayAdapter.getItem(which))){
-                                                            int new_amount = contact_list.get(m).getAmount() - amount;
-                                                            if (new_amount < 0) {
-                                                                Toast.makeText(context, "Stated value is more than " + arrayAdapter.getItem(which) + "'s value", Toast.LENGTH_LONG).show();
-                                                            } else {
-                                                                Toast.makeText(context, contact_list.get(item_id).getF_name() + " shall pay " + amount + " for " + arrayAdapter.getItem(which), Toast.LENGTH_LONG).show();
-                                                                int old_paying_amount = contact_list.get(item_id).getAmount();
-                                                                contact_list.get(item_id).setAmount(old_paying_amount + amount);
-                                                                contact_list.get(m).setAmount(new_amount);
-                                                                debt.setDebtor_no(contact_list.get(m).getPhone_number());
+                                                    if (amount > 0) {
+                                                        for (int m = 0; m < contact_list.size(); m++) {
+                                                            if (contact_list.get(m).getF_name().equals(arrayAdapter.getItem(which))) {
+                                                                int new_amount = contact_list.get(m).getAmount() - amount;
+                                                                if (new_amount < 0) {
+                                                                    Toast.makeText(context, "Stated value is more than " + arrayAdapter.getItem(which) + "'s value", Toast.LENGTH_LONG).show();
+                                                                } else {
+                                                                    Toast.makeText(context, contact_list.get(item_id).getF_name() + " shall pay " + amount + " for " + arrayAdapter.getItem(which), Toast.LENGTH_LONG).show();
+                                                                    int old_paying_amount = contact_list.get(item_id).getAmount();
+                                                                    contact_list.get(item_id).setAmount(old_paying_amount + amount);
+                                                                    contact_list.get(m).setAmount(new_amount);
+                                                                    debt.setDebtor_no(contact_list.get(m).getPhone_number());
+                                                                }
                                                             }
                                                         }
+                                                        debt.setAmount(String.valueOf(amount));
+                                                        debt.setLender_no(contact_list.get(item_id).getPhone_number());
+                                                        debtors.add(debt);
+                                                        globals.setDebtors(debtors);
+                                                        updateResults(contact_list);
                                                     }
-                                                    debt.setAmount(String.valueOf(amount));
-                                                    debt.setLender_no(contact_list.get(item_id).getPhone_number());
-                                                    debtors.add(debt);
-                                                    globals.setDebtors(debtors);
-                                                    updateResults(contact_list);
                                                 }
                                             });
                                     AlertDialog alert = alertDialogBuilder.create();

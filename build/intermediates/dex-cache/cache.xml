@@ -9,18 +9,18 @@
         <dex dex="/home/mark/StudioProjects/SplitBill/app/build/intermediates/pre-dexed/debug/classes-df8ce7675feebcfafb86ac5ae58b444d7f3d1dca.jar" />
     </item>
     <item
-        jar="/home/mark/StudioProjects/SplitBill/app/build/intermediates/exploded-aar/com.android.support/support-v4/22.1.0/libs/internal_impl-22.1.0.jar"
-        jumboMode="false"
-        revision="22.0.1"
-        sha1="025cb89f2896c63200ff4c2e6c467a95691d880a">
-        <dex dex="/home/mark/StudioProjects/SplitBill/app/build/intermediates/pre-dexed/debug/internal_impl-22.1.0-d554f35f10f5204dd6b7f6df1d4d1c93336a6ca8.jar" />
-    </item>
-    <item
         jar="/home/mark/StudioProjects/SplitBill/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.1.0/classes.jar"
         jumboMode="false"
-        revision="22.0.1"
-        sha1="983e2f375504bc04def18e709c35192afe92e65f">
-        <dex dex="/home/mark/StudioProjects/SplitBill/app/build/intermediates/pre-dexed/debug/classes-be470c83da4af7b845b779226f65ab2bf6065863.jar" />
+        revision="22.0.1" sha1="983e2f375504bc04def18e709c35192afe92e65f">
+        <dex
+            dex="/home/mark/StudioProjects/SplitBill/app/build/intermediates/pre-dexed/debug/classes-be470c83da4af7b845b779226f65ab2bf6065863.jar" />
+    </item>
+    <item
+        jar="/home/mark/StudioProjects/SplitBill/app/build/intermediates/exploded-aar/com.android.support/support-v4/22.1.0/libs/internal_impl-22.1.0.jar"
+        jumboMode="false"
+        revision="22.0.1" sha1="025cb89f2896c63200ff4c2e6c467a95691d880a">
+        <dex
+            dex="/home/mark/StudioProjects/SplitBill/app/build/intermediates/pre-dexed/debug/internal_impl-22.1.0-d554f35f10f5204dd6b7f6df1d4d1c93336a6ca8.jar" />
     </item>
     <item
         jar="/home/mark/Documents/android/sdk/extras/android/m2repository/com/android/support/support-annotations/22.1.0/support-annotations-22.1.0.jar"

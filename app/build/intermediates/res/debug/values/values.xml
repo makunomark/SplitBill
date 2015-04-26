@@ -5,7 +5,8 @@
     <array name="drawer_items">
         <item>Split Cost</item>
         <item>History</item>
-        <item>Debts</item></array>
+        <item>Debts</item>
+    </array>
     <!-- From: file:/home/mark/StudioProjects/SplitBill/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.1.0/res/values/values.xml -->
     <eat-comment/>
     <attr format="reference" name="drawerArrowStyle"/>
@@ -215,7 +216,7 @@
     <eat-comment/>
     <string name="app_name">SplitBill</string>
     <string name="check_all_none">Check all/none</string>
-    <string name="pick_contacts">Pick contacts</string>
+    <string name="pick_contacts">Contacts</string>
     <string name="pick_contacts_action">PICK_CONTACTS_ACTION</string>
     <string name="search">Search</string>
     <!-- From: file:/home/mark/StudioProjects/SplitBill/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.1.0/res/values/values.xml -->

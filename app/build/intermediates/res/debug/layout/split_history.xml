@@ -5,15 +5,16 @@
     android:background="#c0c0c0"
     android:orientation="vertical">
     <android.support.v7.widget.RecyclerView
-        android:layout_height = "match_parent"
+        android:id="@+id/recycler_view_history"
         android:layout_width = "match_parent"
-        android:id="@+id/recycler_view_history"/>
+        android:layout_height="match_parent" />
+
     <TextView
         android:id="@+id/empty_view_2"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center"
-        android:visibility="gone"
-        android:text="no_data" />
+        android:text="no_data"
+        android:visibility="gone" />
 </LinearLayout>
 <!-- From: file:/home/mark/StudioProjects/SplitBill/app/src/main/res/layout/split_history.xml -->

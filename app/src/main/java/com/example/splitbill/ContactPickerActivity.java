@@ -1,12 +1,6 @@
 
 package com.example.splitbill;
-import java.util.ArrayList;
-import java.util.List;
 
-
-import java.util.Iterator;
-
-import android.app.ActionBar;
 import android.app.Activity;
 import android.content.ContentResolver;
 import android.content.Intent;
@@ -29,23 +23,49 @@ import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.example.splitbill.utils.ASyncUtils;
 import com.example.splitbill.utils.Anim;
+
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * Author Konrad Gadzinowski
  * kgadzinowski@gmail.com
  */
 public class ContactPickerActivity extends ActionBarActivity {
-	
+
+	final int BUFFER_INTERVAL = 10;
 	ListView lvContacts;
 	ContactAdapter contactsAdapter = null;
 	boolean allChecked = false;
-	final int BUFFER_INTERVAL = 10;
-	
 	boolean finishTask = false;
+	//search box text listener
+	TextWatcher searchBoxWocher = new TextWatcher() {
 
+		@Override
+		public void onTextChanged(CharSequence s, int start, int before, int count) {
+			// TODO Auto-generated method stub
+			filterList(s.toString());
+		}
+
+		@Override
+		public void beforeTextChanged(CharSequence s, int start, int count,
+									  int after) {
+			// TODO Auto-generated method stub
+
+		}
+
+		@Override
+		public void afterTextChanged(Editable s) {
+			// TODO Auto-generated method stub
+
+		}
+	};
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -54,29 +74,29 @@ public class ContactPickerActivity extends ActionBarActivity {
 	
 	@Override
 	protected void onResume() {
-		
+
 		allChecked = false;
 		finishTask = false;
 		if(getIntent().hasExtra(ContactData.CHECK_ALL)) {
 			allChecked = getIntent().getBooleanExtra(ContactData.CHECK_ALL, allChecked);
-		} 
+		}
 
 		setActionBar();
 
 		initUi();
-		
+
 		showContacts();
-	
+
 		setUi();
-		
+
 		super.onResume();
 	}
 	
 	@Override
 	protected void onDestroy() {
-		
+
 		finishTask = true;
-		
+
 		super.onDestroy();
 	}
 	
@@ -84,15 +104,15 @@ public class ContactPickerActivity extends ActionBarActivity {
 		//Hide search box on start
         LinearLayout linearlayoutSearchBox = (LinearLayout) findViewById(R.id.linearlayoutSearchBox);
         linearlayoutSearchBox.setVisibility(View.GONE);
-        
+
         //define search box
         final EditText etSearchBox = (EditText) findViewById(R.id.editTextSearchBox);
         etSearchBox.addTextChangedListener(searchBoxWocher);
-        
+
         //Define close searchbox button
         ImageButton imageBtnCloseSearchBox = (ImageButton) findViewById(R.id.imageButtonCloseSearchBox);
         imageBtnCloseSearchBox.setOnClickListener(new OnClickListener() {
-			
+
 			@Override
 			public void onClick(View v) {
 				//reset filter and hide search field
@@ -100,61 +120,60 @@ public class ContactPickerActivity extends ActionBarActivity {
 				showSearchBox(false);
 			}
 		});
-		
+
 	}
 	
-	
 	public void initUi() {
-		
+
 		lvContacts = (ListView) findViewById(R.id.lvContacts);
-	
+
 	}
 	
 	public void setUi() {
-		
+
 		ContactData.contactsSelected = 0;
-		
+
 		lvContacts.setClickable(true);
 		lvContacts.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
 			public void onItemClick(AdapterView<?> adapter, View view, int pos,
-					long id) {
+									long id) {
 
 				ContactData contact = contactsAdapter.getItem(pos);
 				contact.checked = !contact.checked;
 				contactsAdapter.notifyDataSetChanged();
-				
+
 				// Update number of selected contacts
-				if(contact.checked) {
-		        	ContactData.contactsSelected++;
-		        } else {
-		        	if(ContactData.contactsSelected > 0) {
-		        		ContactData.contactsSelected--;
-		        	}
-		        }
-				
+				if (contact.checked) {
+					ContactData.contactsSelected++;
+				} else {
+					if (ContactData.contactsSelected > 0) {
+						ContactData.contactsSelected--;
+					}
+				}
+
 				updateNrSelected();
 			}
 		});
-		
+
 		updateNrSelected();
-		
+
 	}
 	
 	public void updateNrSelected() {
 		setTitle(getString(R.string.pick_contacts) + ": " + String.valueOf(ContactData.contactsSelected) );
-		getSupportActionBar().setTitle(getString(R.string.pick_contacts) + ": " + String.valueOf(ContactData.contactsSelected) );
-		
+		getSupportActionBar().setTitle(getString(R.string.pick_contacts) + ": " + String.valueOf(ContactData.contactsSelected));
+
 	}
 	
 	public void showContacts() {
-		
-			AsyncTask<Object, Integer, Object> showContacts = new AsyncTask<Object, Integer, Object>() {
+
+		AsyncTask<Object, Integer, Object> showContacts = new AsyncTask<Object, Integer, Object>() {
 
 				@Override
 				protected Object doInBackground(Object... params) {
-					
+
 					// Run query on all contacts id
 		            Uri uri = ContactsContract.Contacts.CONTENT_URI;
 		            String[] projection = new String[] { ContactsContract.Contacts._ID,
@@ -168,76 +187,76 @@ public class ContactPickerActivity extends ActionBarActivity {
 
 		            Cursor cursor = contectResolver.query(uri, projection, selection, selectionArgs,
 		                    sortOrder);
-					
-		            //Create buffer
+
+					//Create buffer
 		            final ArrayList<ContactData> bufferContacts = new ArrayList<ContactData>();
-		            
-		            //Load contacts one by one
+
+					//Load contacts one by one
 		            if(cursor.moveToFirst()) {
 		            	while(!cursor.isAfterLast()) {
-		            		
-		            		if(finishTask) {
+
+							if(finishTask) {
 		            			return null;
 		            		}
-		            		
-		            		String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
-		            		
-		            		
-		            		String[] emailProj = new String[]{Email.DATA};
+
+							String id = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts._ID));
+
+
+							String[] emailProj = new String[]{Email.DATA};
 		            		Cursor cursorEmail = contectResolver.query(Email.CONTENT_URI, emailProj,Email.CONTACT_ID + " = ? ", new String[] { id }, null);
-		            		
-		            		String[] phoneProj = new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME};
+
+							String[] phoneProj = new String[]{ContactsContract.CommonDataKinds.Phone.NUMBER, ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME};
 		            		Cursor cursorPhone = contectResolver.query(ContactsContract.CommonDataKinds.Phone.CONTENT_URI, phoneProj,
 		            				ContactsContract.CommonDataKinds.Phone.CONTACT_ID + " = ?", new String[] { id }, null);
-		            		
-		            		String firstName = "";
+
+							String firstName = "";
 		            		String lastName = "";
 		            		String email = "";
 		            		String displayname = "";
 		            		String phoneNmb = "";
-		            		
-		            		if(cursorPhone.moveToFirst()) {
+
+							if(cursorPhone.moveToFirst()) {
 			            		///displayname = cursorPhone.getString(cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.DISPLAY_NAME));
 			            		phoneNmb = cursorPhone.getString(cursorPhone.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER));
 		            		}
 		            		cursorPhone.close();
-		            		
-		            		if(cursorEmail.moveToFirst()) {
+
+							if(cursorEmail.moveToFirst()) {
 		            			email = cursorEmail.getString(cursorEmail.getColumnIndex(Email.DATA));
 		            		}
 		            		cursorEmail.close();
-		            		
-		            		displayname = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
-		            		
-		            		//Divide display name to first and last
+
+							displayname = cursor.getString(cursor.getColumnIndex(ContactsContract.Contacts.DISPLAY_NAME));
+
+							//Divide display name to first and last
 		            		String[] names = new String[]{"---", "---"};
-		            		
-		            		if(displayname != null) {
+
+							if(displayname != null) {
 		            			names = displayname.split("\\s+");
 		            			firstName = displayname;
 		            		}
-		            		
-		            		
-		            		if(names.length >= 1) {
+
+
+							if(names.length >= 1) {
 		            			firstName = names[0];
 		            		}
-		            		
-		            		if(names.length >= 2) {
+
+							if(names.length >= 2) {
 		            			lastName = names[1];
 		            		}
-		            		
-		            		final ContactData contactData = new ContactData(id, firstName, lastName, displayname, phoneNmb, email, allChecked);
-		            		
-		            		bufferContacts.add(contactData);
-		            		
-		            		//Set list view initialy
+
+							final ContactData contactData = new ContactData(id, firstName, lastName, displayname, phoneNmb, email, allChecked);
+
+							bufferContacts.add(contactData);
+
+							//Set list view initialy
 			            	runOnUiThread(new Runnable() {
 								public void run() {
-		
+
 									if(contactsAdapter == null) {
 										ArrayList<ContactData> contacts = new ArrayList<ContactData>();
 										contactsAdapter = new ContactAdapter(ContactPickerActivity.this, contacts);
-										
+
 										lvContacts.setAdapter(contactsAdapter);
 									}
 
@@ -245,48 +264,51 @@ public class ContactPickerActivity extends ActionBarActivity {
 										addBuffer(bufferContacts);
 									}
 								}
-									
+
 							});
-		            		
-		            		cursor.moveToNext();
+
+							cursor.moveToNext();
 		            	}
 		            }
-		            
-		            cursor.close();
-		            
-		            runOnUiThread(new Runnable() {
+
+					cursor.close();
+
+					runOnUiThread(new Runnable() {
 						public void run() {
 
 							addBuffer(bufferContacts);
 
 						}
-							
+
 					});
-		            
-		            
+
+
 					return null;
-					
+
 				}
-			
-			
-			};
-			
-			ASyncUtils.startMyTask(showContacts, null);
-		
+
+
+		};
+
+		ASyncUtils.startMyTask(showContacts, null);
+
 	}
 	
 	public void addBuffer(ArrayList<ContactData> buffer) {
-	
+
 		// Add new contacts to count
 		if(allChecked) {
 			ContactData.contactsSelected += buffer.size();
 			updateNrSelected();
 		}
 
-		contactsAdapter.addAll(buffer);
-		contactsAdapter.notifyDataSetChanged();
-		
-		
+		if (buffer.size() > 0) {
+			contactsAdapter.addAll(buffer);
+			contactsAdapter.notifyDataSetChanged();
+		} else {
+			Toast.makeText(ContactPickerActivity.this, "Seems like you don't have contacts", Toast.LENGTH_LONG).show();
+		}
+
 		//reset buffer
 		buffer.clear();
 	}
@@ -303,14 +325,14 @@ public class ContactPickerActivity extends ActionBarActivity {
 	
 	@Override
     public boolean onCreateOptionsMenu(Menu menu) {
-    	
-    	getMenuInflater().inflate(R.menu.menu_select, menu);
-    	
-    	//TODO: Add search option with well performance
+
+		getMenuInflater().inflate(R.menu.menu_select, menu);
+
+		//TODO: Add search option with well performance
     	//Disable search due to poor performance
     	menu.removeItem(R.id.menu_search);
-    	
-    	super.onCreateOptionsMenu(menu);
+
+		super.onCreateOptionsMenu(menu);
     	return true;
     }
 	
@@ -324,7 +346,7 @@ public class ContactPickerActivity extends ActionBarActivity {
 		        mShowAll = true;
 		        refreshListView("");
 		        return true;
-		      */  
+		      */
 		} else if( id == R.id.menu_search) {
 			LinearLayout linearlayoutSearchBox = (LinearLayout) findViewById(R.id.linearlayoutSearchBox);
 			if(linearlayoutSearchBox.getVisibility() == View.GONE) {
@@ -334,93 +356,70 @@ public class ContactPickerActivity extends ActionBarActivity {
 				//hide search box
 				showSearchBox(false);
 			}
-			
+
 			return true;
 
 		} else if( id == R.id.menu_done) {
 			returnData();
 			return true;
-		
+
 		} else if( id == R.id.menu_cancel) {
 			setResult(Activity.RESULT_CANCELED, null);
 			finish();
 			return true;
         } else if( id == R.id.menu_check) {
-        	
-        	//Check or uncheck all
+
+			//Check or uncheck all
 			allChecked = !allChecked;
-			
+
 			List<ContactData> contacts = contactsAdapter.items;
 			Iterator<ContactData> iterContacts = contacts.iterator();
-			
+
 			while(iterContacts.hasNext()) {
 				ContactData contact = iterContacts.next();
 				contact.checked = allChecked;
 			}
-			
+
 			// Update selected contact numbers
 			if(allChecked) {
 				ContactData.contactsSelected = contactsAdapter.getCount();
 			} else {
 				ContactData.contactsSelected = 0;
 			}
-			
+
 			contactsAdapter.notifyDataSetChanged();
 			updateNrSelected();
 			return true;
-        
-        }
+
+		}
 
 
 		return super.onOptionsItemSelected(item);
     }
 	
 	public void returnData() {
-		
-		Intent result = new Intent();         
-		
+
+		Intent result = new Intent();
+
 		ArrayList<ContactData> resultList = contactsAdapter.items;
 		Iterator<ContactData> iterResultList = resultList.iterator();
-		
+
 		ArrayList<ContactData> results = new ArrayList<ContactData>();
 		//pass only checked contacts
 		while(iterResultList.hasNext()) {
-			
+
 			ContactData contactData = iterResultList.next();
 			if(contactData.checked) {
 				results.add(contactData);
 			}
 		}
-		
+
 		result.putParcelableArrayListExtra(ContactData.CONTACTS_DATA, results);
-		
+
 		setResult(Activity.RESULT_OK, result);
 		finish();
-		
+
 	}
-	
-	//search box text listener
-    TextWatcher searchBoxWocher = new TextWatcher() {
-		
-		@Override
-		public void onTextChanged(CharSequence s, int start, int before, int count) {
-			// TODO Auto-generated method stub
-			filterList(s.toString());
-		}
-		
-		@Override
-		public void beforeTextChanged(CharSequence s, int start, int count,
-				int after) {
-			// TODO Auto-generated method stub
-			
-		}
-		
-		@Override
-		public void afterTextChanged(Editable s) {
-			// TODO Auto-generated method stub
-			
-		}
-	};
 	
 	private void filterList(String filter) {
     	
