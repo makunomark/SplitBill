@@ -1,0 +1,12 @@
+<resources>
+    <string name="app_name">SplitBill</string>
+    <string name="search">Search</string>
+    <string name="pick_contacts">Contacts</string>
+    <string name="pick_contacts_action">PICK_CONTACTS_ACTION</string>
+    <string name="check_all_none">Check all/none</string>
+    <array name="drawer_items">
+        <item>Split Cost</item>
+        <item>History</item>
+        <item>Debts</item>
+    </array>
+</resources>

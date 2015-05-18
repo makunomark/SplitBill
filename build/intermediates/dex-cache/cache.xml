@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<items version="2" >
+
+    <item
+        jar="/home/mark/StudioProjects/SplitBill/app/build/intermediates/exploded-aar/com.android.support/cardview-v7/22.1.0/classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="66fd9d179eb79b64c99e555dead32e725792217a">
+        <dex dex="/home/mark/StudioProjects/SplitBill/app/build/intermediates/pre-dexed/debug/classes-a32427904bd05f1361adbe4eee644a16539f94f2.jar" />
+    </item>
+    <item
+        jar="/home/mark/StudioProjects/SplitBill/app/build/intermediates/exploded-aar/com.android.support/recyclerview-v7/22.1.0/classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="80434c45861675a57d690fba5ca31c3d55c89489">
+        <dex dex="/home/mark/StudioProjects/SplitBill/app/build/intermediates/pre-dexed/debug/classes-df8ce7675feebcfafb86ac5ae58b444d7f3d1dca.jar" />
+    </item>
+    <item
+        jar="/home/mark/StudioProjects/SplitBill/app/build/intermediates/exploded-aar/com.android.support/support-v4/22.1.0/libs/internal_impl-22.1.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="025cb89f2896c63200ff4c2e6c467a95691d880a">
+        <dex dex="/home/mark/StudioProjects/SplitBill/app/build/intermediates/pre-dexed/debug/internal_impl-22.1.0-d554f35f10f5204dd6b7f6df1d4d1c93336a6ca8.jar" />
+    </item>
+    <item
+        jar="/home/mark/StudioProjects/SplitBill/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/22.1.0/classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="983e2f375504bc04def18e709c35192afe92e65f">
+        <dex dex="/home/mark/StudioProjects/SplitBill/app/build/intermediates/pre-dexed/debug/classes-be470c83da4af7b845b779226f65ab2bf6065863.jar" />
+    </item>
+    <item
+        jar="/home/mark/StudioProjects/SplitBill/app/build/intermediates/exploded-aar/com.android.support/support-v4/22.1.0/classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="eeebabdfd8203f6ab639ccea4ffa1f20e1adee3a">
+        <dex dex="/home/mark/StudioProjects/SplitBill/app/build/intermediates/pre-dexed/debug/classes-399604c2fbfe0d7a41c0ecab32893277b690b3f6.jar" />
+    </item>
+    <item
+        jar="/home/mark/Documents/android/sdk/extras/android/m2repository/com/android/support/support-annotations/22.1.0/support-annotations-22.1.0.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="281bc6c58ecb3644c23fbc5ee0452019f67b4d5d">
+        <dex dex="/home/mark/StudioProjects/SplitBill/app/build/intermediates/pre-dexed/debug/support-annotations-22.1.0-4674107e04bc77c41b51114d002095296b691699.jar" />
+    </item>
+
+</items>
